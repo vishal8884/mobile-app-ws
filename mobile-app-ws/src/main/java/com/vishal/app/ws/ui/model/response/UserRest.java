@@ -1,4 +1,6 @@
-package com.vishal.app.ws.ui.model;
+package com.vishal.app.ws.ui.model.response;
+
+import java.util.Map;
 
 public class UserRest {
 
