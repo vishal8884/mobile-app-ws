@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vishal.app.ws.ui.model.request.UpdatedUserDetailsRequestModel;
 import com.vishal.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.vishal.app.ws.ui.model.response.UserRest;
 
@@ -45,9 +46,12 @@ public class UserController {
 	{
 		UserRest userRest = new UserRest();
 		
+		
+		
 		if(users.containsKey(userId))
 		{
-			return new ResponseEntity<UserRest>(users.get(userId),HttpStatus.OK);    //users.get(userId)
+			UserRest getFromPost = users.get(userId);
+			return new ResponseEntity<UserRest>(getFromPost,HttpStatus.OK);    //users.get(userId)
 		}
 		else
 		{
@@ -133,16 +137,28 @@ public class UserController {
 //		return returnValue;
 //	}
 	
-	@PutMapping
-	public String UpdateUser()
+	
+	////////////////////////////////////put mapping//////////////////////////////////////////////////////////// 
+	
+	@PutMapping(path = "/{userId}" ,consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
+	public UserRest UpdateUser(@PathVariable String userId, @RequestBody UpdatedUserDetailsRequestModel updatedUserDetailsRequestModel)
 	{
-		return "update user was called";
+		UserRest updatedUserRest = users.get(userId);
+		updatedUserRest.setFirstName(updatedUserDetailsRequestModel.getFirstName());
+		updatedUserRest.setLastName(updatedUserDetailsRequestModel.getLastName());
+		
+		users.put(userId, updatedUserRest);
+		
+		
+		return updatedUserRest;
 	}
 	
-	@DeleteMapping
-	public String DeleteUser()
+	@DeleteMapping(path = "/{userId}")
+	public ResponseEntity<Void> DeleteUser(@PathVariable String userId)
 	{
-		return "delete user was called";
+		
+		users.remove(userId);
+		return ResponseEntity.noContent().build();
 	}
 	
 
