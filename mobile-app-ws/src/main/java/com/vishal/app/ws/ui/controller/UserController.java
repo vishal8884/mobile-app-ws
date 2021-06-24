@@ -1,4 +1,4 @@
-package com.vishal.app.ws.ui.controller;
+ package com.vishal.app.ws.ui.controller;
 
 
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.message.Message;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vishal.app.ws.exceptions.UserServiceException;
 import com.vishal.app.ws.ui.model.request.UpdatedUserDetailsRequestModel;
 import com.vishal.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.vishal.app.ws.ui.model.response.UserRest;
+import com.vishal.app.ws.userService.userService;
 
 @RestController
 @RequestMapping("users")  // http://localhost:8080/users
@@ -32,6 +35,9 @@ public class UserController {
 	
 	
 	HashMap<String, UserRest> users;                                                                     // This is like temp database
+	
+	@Autowired
+	userService userServe;
 	
 	@GetMapping  
 	public String getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -46,7 +52,8 @@ public class UserController {
 	public ResponseEntity<UserRest> getUser(@PathVariable String userId)                                                               //path variable is used to get uri paramenter
 	{
 		
-		
+		//if(true)
+			//throw new UserServiceException("userService exception is thrown take care");   //this is custom exception
 		
 		if(users.containsKey(userId))
 		{
@@ -101,23 +108,19 @@ public class UserController {
 	@PostMapping(consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<UserRest> CreateUser(@Valid @RequestBody UserDetailsRequestModel userDetailsRequestModel) //gets the data from postMapping in postman app with url(http://localhost:8080/users)  --------- json --> {"firstName" : "vishal","lastName":"N", "email" : "vishal@xox.com", "password" : "abcd1234"}
 	{
-		UserRest returnValue = new UserRest();
+		
 		
 		//System.out.println("test :: "+userDetailsRequestModel.getEmail());
 		
-		returnValue.setFirstName(userDetailsRequestModel.getFirstName());
-		returnValue.setLastName(userDetailsRequestModel.getLastName());
-		returnValue.setEmail(userDetailsRequestModel.getEmail());
+		UserRest returnValue = userServe.getUserRest(userDetailsRequestModel);
 		
-		String userId=UUID.randomUUID().toString();  //even userId can be sent from postman
-		returnValue.setId(userId);
+		String userId=returnValue.getId();
 		
 		if(users==null)                              //wprks without this if condition also
 		{
 			users= new HashMap<String, UserRest>();
 			users.put(userId, returnValue);
 		}
-		
 		
 		return new ResponseEntity<UserRest>(returnValue,HttpStatus.OK);
 	}
