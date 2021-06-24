@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.message.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ import com.vishal.app.ws.ui.model.response.UserRest;
 public class UserController {
 	
 	
-	HashMap<String, UserRest> users;
+	HashMap<String, UserRest> users;                                                                     // This is like temp database
 	
 	@GetMapping  
 	public String getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -44,7 +45,6 @@ public class UserController {
 	@GetMapping(path = "/{userId}" , produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})    // http://localhost:8080/users/{userId}
 	public ResponseEntity<UserRest> getUser(@PathVariable String userId)                                                               //path variable is used to get uri paramenter
 	{
-		UserRest userRest = new UserRest();
 		
 		
 		
@@ -141,7 +141,7 @@ public class UserController {
 	////////////////////////////////////put mapping//////////////////////////////////////////////////////////// 
 	
 	@PutMapping(path = "/{userId}" ,consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
-	public UserRest UpdateUser(@PathVariable String userId, @RequestBody UpdatedUserDetailsRequestModel updatedUserDetailsRequestModel)
+	public ResponseEntity<UserRest> UpdateUser(@PathVariable String userId, @RequestBody UpdatedUserDetailsRequestModel updatedUserDetailsRequestModel)
 	{
 		UserRest updatedUserRest = users.get(userId);
 		updatedUserRest.setFirstName(updatedUserDetailsRequestModel.getFirstName());
@@ -149,13 +149,15 @@ public class UserController {
 		
 		users.put(userId, updatedUserRest);
 		
-		
-		return updatedUserRest;
+
+		return new ResponseEntity<UserRest>(updatedUserRest,HttpStatus.OK);
 	}
 	
 	@DeleteMapping(path = "/{userId}")
 	public ResponseEntity<Void> DeleteUser(@PathVariable String userId)
 	{
+//		String s= null;
+//		int len = s.length();  //to test null pointer exception
 		
 		users.remove(userId);
 		return ResponseEntity.noContent().build();
